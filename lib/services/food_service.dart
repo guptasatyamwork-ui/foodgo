@@ -1,0 +1,186 @@
+import '../{core,modules,widgets,routes,models,services}/models/food_model.dart';
+
+class FoodService {
+  static List<FoodModel> getAllFoods() {
+    return [
+      FoodModel(
+        id: '1',
+        name: 'Classic Burger',
+        description: 'Juicy beef patty with fresh lettuce, tomato, and our secret sauce on a toasted brioche bun. A timeless classic that never disappoints.',
+        price: 12.99,
+        rating: 4.8,
+        reviewCount: 234,
+        imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80',
+        category: 'Burgers',
+        isPopular: true,
+        isVeg: false,
+        calories: 540,
+        prepTime: '15 min',
+      ),
+      FoodModel(
+        id: '2',
+        name: 'Margherita Pizza',
+        description: 'Classic Italian pizza with San Marzano tomatoes, fresh mozzarella, and fragrant basil leaves on a crispy thin crust.',
+        price: 14.99,
+        rating: 4.7,
+        reviewCount: 189,
+        imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80',
+        category: 'Pizza',
+        isPopular: true,
+        isVeg: true,
+        calories: 720,
+        prepTime: '20 min',
+      ),
+      FoodModel(
+        id: '3',
+        name: 'Chicken Combo Meal',
+        description: 'Crispy fried chicken with golden fries, coleslaw, and your choice of dipping sauce. The perfect combo for chicken lovers.',
+        price: 16.99,
+        rating: 4.6,
+        reviewCount: 312,
+        imageUrl: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=800&q=80',
+        category: 'Combos',
+        isPopular: true,
+        isVeg: false,
+        calories: 890,
+        prepTime: '18 min',
+      ),
+      FoodModel(
+        id: '4',
+        name: 'Fresh Lemonade',
+        description: 'Freshly squeezed lemonade with a hint of mint and ginger. Perfectly refreshing on a hot day.',
+        price: 4.99,
+        rating: 4.5,
+        reviewCount: 156,
+        imageUrl: 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=800&q=80',
+        category: 'Drinks',
+        isVeg: true,
+        calories: 120,
+        prepTime: '5 min',
+      ),
+      FoodModel(
+        id: '5',
+        name: 'Pepperoni Pizza',
+        description: 'Loaded with premium pepperoni slices, melted mozzarella, and zesty tomato sauce on a perfectly baked crust.',
+        price: 16.99,
+        rating: 4.9,
+        reviewCount: 421,
+        imageUrl: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=800&q=80',
+        category: 'Pizza',
+        isPopular: true,
+        isVeg: false,
+        calories: 850,
+        prepTime: '22 min',
+      ),
+      FoodModel(
+        id: '6',
+        name: 'Double Smash Burger',
+        description: 'Two smashed beef patties with American cheese, caramelized onions, pickles, and our signature sauce.',
+        price: 15.99,
+        rating: 4.8,
+        reviewCount: 267,
+        imageUrl: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&q=80',
+        category: 'Burgers',
+        isPopular: true,
+        isVeg: false,
+        calories: 720,
+        prepTime: '20 min',
+      ),
+      FoodModel(
+        id: '7',
+        name: 'Mango Smoothie',
+        description: 'Thick and creamy mango smoothie made with real Alphonso mangoes, yogurt, and a touch of honey.',
+        price: 5.99,
+        rating: 4.7,
+        reviewCount: 198,
+        imageUrl: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=800&q=80',
+        category: 'Drinks',
+        isVeg: true,
+        calories: 180,
+        prepTime: '5 min',
+      ),
+      FoodModel(
+        id: '8',
+        name: 'Family Combo Box',
+        description: 'The ultimate family feast! Includes 2 large pizzas, 8 pieces chicken, large fries, and 4 drinks.',
+        price: 49.99,
+        rating: 4.9,
+        reviewCount: 543,
+        imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80',
+        category: 'Combos',
+        isPopular: true,
+        isVeg: false,
+        calories: 3200,
+        prepTime: '30 min',
+      ),
+      FoodModel(
+        id: '9',
+        name: 'BBQ Chicken Burger',
+        description: 'Grilled chicken breast with smoky BBQ sauce, crispy bacon, cheddar cheese, and fresh jalapeños.',
+        price: 13.99,
+        rating: 4.6,
+        reviewCount: 203,
+        imageUrl: 'https://images.unsplash.com/photo-1586816001966-79b736744398?w=800&q=80',
+        category: 'Burgers',
+        isVeg: false,
+        calories: 610,
+        prepTime: '18 min',
+      ),
+      FoodModel(
+        id: '10',
+        name: 'Veggie Supreme Pizza',
+        description: 'Loaded with bell peppers, mushrooms, olives, red onion, and fresh basil on a herb-infused crust.',
+        price: 13.99,
+        rating: 4.5,
+        reviewCount: 167,
+        imageUrl: 'https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?w=800&q=80',
+        category: 'Pizza',
+        isVeg: true,
+        calories: 620,
+        prepTime: '22 min',
+      ),
+      FoodModel(
+        id: '11',
+        name: 'Iced Coffee',
+        description: 'Cold brew coffee over ice with a splash of cream. Energize your day the delicious way.',
+        price: 4.49,
+        rating: 4.4,
+        reviewCount: 289,
+        imageUrl: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=800&q=80',
+        category: 'Drinks',
+        isVeg: true,
+        calories: 80,
+        prepTime: '3 min',
+      ),
+      FoodModel(
+        id: '12',
+        name: 'Party Combo Deal',
+        description: 'Perfect for parties! 3 large pizzas, 12 pieces of wings, 2 large sides, and 6 drinks included.',
+        price: 69.99,
+        rating: 4.8,
+        reviewCount: 89,
+        imageUrl: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80',
+        category: 'Combos',
+        isVeg: false,
+        calories: 5000,
+        prepTime: '40 min',
+      ),
+    ];
+  }
+
+  static List<FoodModel> getFoodsByCategory(String category) {
+    if (category == 'All') return getAllFoods();
+    return getAllFoods().where((f) => f.category == category).toList();
+  }
+
+  static List<FoodModel> searchFoods(String query) {
+    return getAllFoods()
+        .where((f) => f.name.toLowerCase().contains(query.toLowerCase()) ||
+            f.category.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+  }
+
+  static List<FoodModel> getPopularFoods() {
+    return getAllFoods().where((f) => f.isPopular).toList();
+  }
+}
