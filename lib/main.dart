@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:foodgo/core/sevice/auth_service.dart';
 import 'package:get/get.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'routes/app_pages.dart';
 import 'services/cart_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-  ));
+
+  // Firebase initialize
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Services register
+  final authService = AuthService();
+  await authService.init();
+  Get.put<AuthService>(authService, permanent: true);
   Get.put<CartService>(CartService(), permanent: true);
+
   runApp(const FoodgoApp());
 }
 
@@ -23,7 +33,7 @@ class FoodgoApp extends StatelessWidget {
       title: 'Foodgo',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      initialRoute: AppPages.INITIAL,
+      initialRoute: Routes.SPLASH,
       getPages: AppPages.routes,
     );
   }

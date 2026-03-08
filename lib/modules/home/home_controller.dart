@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:foodgo/%7Bcore,modules,widgets,routes,models,services%7D/models/food_model.dart';
 import 'package:get/get.dart';
-import '../../{core,modules,widgets,routes,models,services}/models/food_model.dart';
 import '../../services/food_service.dart';
 import '../../services/cart_service.dart';
 

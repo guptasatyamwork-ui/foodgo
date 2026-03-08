@@ -1,3 +1,9 @@
+import 'package:foodgo/modules/forget_password/forget_password_binding.dart';
+import 'package:foodgo/modules/forget_password/forget_password_view.dart';
+import 'package:foodgo/modules/login/login_binding.dart';
+import 'package:foodgo/modules/login/login_view.dart';
+import 'package:foodgo/modules/registration/register_view.dart';
+import 'package:foodgo/modules/registration/registration_binding.dart';
 import 'package:get/get.dart';
 import '../modules/splash/splash_view.dart';
 import '../modules/splash/splash_binding.dart';
@@ -51,6 +57,24 @@ class AppPages {
       name: Routes.PROFILE,
       page: () => ProfileView(),
       binding: ProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+     GetPage(
+      name: Routes.LOGIN,
+      page: () => LoginView(),
+      binding: LoginBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.REGISTER,
+      page: () => RegisterView(),
+      binding: RegisterBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FORGOT_PASSWORD,
+      page: () => ForgotPasswordView(),
+      binding: ForgotPasswordBinding(),
       transition: Transition.rightToLeft,
     ),
   ];
