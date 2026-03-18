@@ -1,4 +1,4 @@
-import 'package:foodgo/%7Bcore,modules,widgets,routes,models,services%7D/models/food_model.dart';
+import 'package:foodgo/modules/food_model.dart';
 import 'package:get/get.dart';
 
 class CartService extends GetxService {

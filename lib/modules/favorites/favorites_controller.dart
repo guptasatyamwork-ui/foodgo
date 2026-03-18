@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foodgo/{core,modules,widgets,routes,models,services}/models/food_model.dart';
+import 'package:foodgo/modules/food_model.dart';
 import 'package:get/get.dart';
 import '../../services/food_service.dart';
 

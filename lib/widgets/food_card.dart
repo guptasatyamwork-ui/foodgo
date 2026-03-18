@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:foodgo/%7Bcore,modules,widgets,routes,models,services%7D/models/food_model.dart';
+import 'package:foodgo/modules/food_model.dart';
 import '../core/theme/app_theme.dart';
 import '../routes/app_pages.dart';
 import '../services/cart_service.dart';

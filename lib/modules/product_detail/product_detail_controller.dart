@@ -1,5 +1,5 @@
+import 'package:foodgo/modules/food_model.dart';
 import 'package:get/get.dart';
-import '../../{core,modules,widgets,routes,models,services}/models/food_model.dart';
 import '../../routes/app_pages.dart';
 import '../../services/cart_service.dart';
 import '../favorites/favorites_controller.dart';

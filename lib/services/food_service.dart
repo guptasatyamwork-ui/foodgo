@@ -1,4 +1,5 @@
-import '../{core,modules,widgets,routes,models,services}/models/food_model.dart';
+
+import 'package:foodgo/modules/food_model.dart';
 
 class FoodService {
   static List<FoodModel> getAllFoods() {
