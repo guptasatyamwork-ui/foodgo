@@ -1,7 +1,14 @@
+import 'package:foodgo/modules/about/about_binding.dart';
+import 'package:foodgo/modules/edite_profile/edit_profile_binding.dart';
+import 'package:foodgo/modules/edite_profile/edite_profile_view.dart';
+import 'package:foodgo/modules/favorites/favorites_binding.dart';
+import 'package:foodgo/modules/favorites/favorites_view.dart';
 import 'package:foodgo/modules/forget_password/forget_password_binding.dart';
 import 'package:foodgo/modules/forget_password/forget_password_view.dart';
 import 'package:foodgo/modules/login/login_binding.dart';
 import 'package:foodgo/modules/login/login_view.dart';
+import 'package:foodgo/modules/about/about_view.dart';
+import 'package:foodgo/modules/profile/view/help_support_view.dart';
 import 'package:foodgo/modules/registration/register_view.dart';
 import 'package:foodgo/modules/registration/registration_binding.dart';
 import 'package:get/get.dart';
@@ -15,7 +22,7 @@ import '../modules/cart/cart_view.dart';
 import '../modules/cart/cart_binding.dart';
 import '../modules/payment/payment_view.dart';
 import '../modules/payment/payment_binding.dart';
-import '../modules/profile/profile_view.dart';
+import '../modules/profile/view/profile_view.dart';
 import '../modules/profile/profile_binding.dart';
 
 part 'app_routes.dart';
@@ -59,7 +66,7 @@ class AppPages {
       binding: ProfileBinding(),
       transition: Transition.rightToLeft,
     ),
-     GetPage(
+    GetPage(
       name: Routes.LOGIN,
       page: () => LoginView(),
       binding: LoginBinding(),
@@ -77,5 +84,24 @@ class AppPages {
       binding: ForgotPasswordBinding(),
       transition: Transition.rightToLeft,
     ),
+    GetPage(
+      name: Routes.EDIT_PROFILE,
+      page: () => const EditProfileView(),
+      binding: EditProfileBinding(),
+    ),
+    GetPage(
+  name: Routes.HELP_SUPPORT,
+  page: () => const HelpSupportView(),
+),
+GetPage(
+  name: Routes.ABOUT,
+  page: () => const AboutView(),
+  binding: AboutBinding(),  
+),
+GetPage(
+  name: Routes.FAVORITES,
+  page: () => const FavoritesView(),
+  binding: FavoritesBinding(),
+),
   ];
 }

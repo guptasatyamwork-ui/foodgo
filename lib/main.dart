@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foodgo/core/sevice/auth_service.dart';
+import 'package:foodgo/modules/favorites/favorites_controller.dart';
+import 'package:foodgo/services/order_service.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -11,15 +13,15 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Firebase initialize
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Services register
   final authService = AuthService();
   await authService.init();
   Get.put<AuthService>(authService, permanent: true);
   Get.put<CartService>(CartService(), permanent: true);
+  Get.put<OrderService>(OrderService(), permanent: true);
+  Get.put<FavoritesController>(FavoritesController(), permanent: true);
 
   runApp(const FoodgoApp());
 }

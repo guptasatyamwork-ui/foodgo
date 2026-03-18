@@ -6,6 +6,7 @@ import '../../core/theme/app_theme.dart';
 import '../../routes/app_pages.dart';
 import '../../services/cart_service.dart';
 import '../../widgets/food_card.dart';
+import '../favorites/favorites_controller.dart';
 import 'home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -29,7 +30,6 @@ class HomeView extends GetView<HomeController> {
             ),
             SliverToBoxAdapter(child: _buildBanner()),
             SliverToBoxAdapter(child: _buildCategories()),
-            // ✅ Popular Now — "See All" tap karo → All Items dikhega
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
@@ -39,7 +39,7 @@ class HomeView extends GetView<HomeController> {
                     const Text('🔥 Popular Now',
                       style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                     GestureDetector(
-                      onTap: () => controller.selectCategory(0), // 0 = All
+                      onTap: () => controller.selectCategory(0),
                       child: const Text('See All',
                         style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary)),
                     ),
@@ -48,7 +48,6 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
             SliverToBoxAdapter(child: _buildPopularList()),
-            // Category section title
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
@@ -61,7 +60,6 @@ class HomeView extends GetView<HomeController> {
                 )),
               ),
             ),
-            // Food Grid
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: Obx(() {
@@ -82,17 +80,21 @@ class HomeView extends GetView<HomeController> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final food = controller.displayedFoods[index];
-                      return Obx(() => FoodCard(
-                        food: food,
-                        isFavorite: controller.isFavorite(food.id),
-                        onFavoriteTap: () => controller.toggleFavorite(food.id),
-                      ));
+                      // ✅ Obx wrap — FavoritesController se live sync
+                      return Obx(() {
+                        final favCtrl = Get.find<FavoritesController>();
+                        return FoodCard(
+                          food: food,
+                          isFavorite: favCtrl.isFavorite(food.id),
+                          onFavoriteTap: () => controller.toggleFavorite(food.id),
+                        );
+                      });
                     },
                     childCount: controller.displayedFoods.length,
                   ),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.72,
+                    childAspectRatio: 0.65, // ✅ more height for card content
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
                   ),
@@ -238,7 +240,7 @@ class HomeView extends GetView<HomeController> {
         itemBuilder: (context, index) {
           final food = controller.popularFoods[index];
           return GestureDetector(
-            onTap: () => Get.toNamed(Routes.PRODUCT_DETAIL, arguments: food),
+            onTap: () => Get.toNamed(Routes.PRODUCT_DETAIL, arguments: {'food': food, 'qty': 1}),
             child: Container(
               width: 180, margin: const EdgeInsets.only(right: 16),
               decoration: BoxDecoration(color: Colors.white,
@@ -285,6 +287,8 @@ class HomeView extends GetView<HomeController> {
         onTap: (index) {
           controller.bottomNavIndex.value = index;
           if (index == 1) Get.toNamed(Routes.CART);
+          // ✅ Favorites tab — FavoritesView pe navigate karo
+          if (index == 2) Get.toNamed(Routes.FAVORITES);
           if (index == 3) Get.toNamed(Routes.PROFILE);
         },
         type: BottomNavigationBarType.fixed,
@@ -308,7 +312,22 @@ class HomeView extends GetView<HomeController> {
             }),
             label: 'Cart',
           ),
-          const BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), label: 'Favorites'),
+          // ✅ Favorites tab — badge with count
+          BottomNavigationBarItem(
+            icon: Obx(() {
+              final favCtrl = Get.find<FavoritesController>();
+              return badges.Badge(
+                showBadge: favCtrl.favoriteFoods.isNotEmpty,
+                badgeContent: Text(
+                  favCtrl.favoriteFoods.length.toString(),
+                  style: const TextStyle(color: Colors.white, fontSize: 8),
+                ),
+                badgeStyle: const badges.BadgeStyle(badgeColor: Colors.red),
+                child: const Icon(Icons.favorite_border_rounded),
+              );
+            }),
+            label: 'Favorites',
+          ),
           const BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), label: 'Profile'),
         ],
       ),
