@@ -1,7 +1,7 @@
 import 'package:foodgo/modules/food_model.dart';
 import 'package:get/get.dart';
 import '../../routes/app_pages.dart';
-import '../../services/cart_service.dart';
+import '../../core/sevice/cart_service.dart';
 import '../favorites/favorites_controller.dart';
 import '../home/home_controller.dart';
 

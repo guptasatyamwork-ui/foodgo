@@ -1,17 +1,33 @@
 import 'package:foodgo/modules/food_model.dart';
 import 'package:get/get.dart';
 
+// ✅ CartItem class — yahan define karo
+class CartItem {
+  final FoodModel food;
+  int quantity;
+  int spicyLevel;
+
+  CartItem({
+    required this.food,
+    required this.quantity,
+    this.spicyLevel = 1,
+  });
+
+  double get totalPrice => food.price * quantity;
+}
+
 class CartService extends GetxService {
   final RxList<CartItem> cartItems = <CartItem>[].obs;
 
-  int get itemCount => cartItems.fold(0, (sum, item) => sum + item.quantity);
-  double get subtotal => cartItems.fold(0.0, (sum, item) => sum + item.totalPrice);
+  int    get itemCount   => cartItems.fold(0,   (sum, item) => sum + item.quantity);
+  double get subtotal    => cartItems.fold(0.0, (sum, item) => sum + item.totalPrice);
   double get deliveryFee => subtotal > 0 ? 2.99 : 0.0;
-  double get taxes => subtotal * 0.08;
-  double get total => subtotal + deliveryFee + taxes;
+  double get taxes       => subtotal * 0.08;
+  double get total       => subtotal + deliveryFee + taxes;
 
   void addToCart(FoodModel food, {int spicyLevel = 1}) {
-    final existingIndex = cartItems.indexWhere((item) => item.food.id == food.id);
+    final existingIndex =
+        cartItems.indexWhere((item) => item.food.id == food.id);
     if (existingIndex >= 0) {
       cartItems[existingIndex].quantity++;
       cartItems.refresh();
@@ -50,11 +66,8 @@ class CartService extends GetxService {
     }
   }
 
-  void clearCart() {
-    cartItems.clear();
-  }
+  void clearCart() => cartItems.clear();
 
-  bool isInCart(String foodId) {
-    return cartItems.any((item) => item.food.id == foodId);
-  }
+  bool isInCart(String foodId) =>
+      cartItems.any((item) => item.food.id == foodId);
 }

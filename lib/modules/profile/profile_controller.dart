@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../services/order_service.dart';
+import '../../core/sevice/order_service.dart';
 
 class ProfileController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();

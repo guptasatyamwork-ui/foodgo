@@ -5,6 +5,7 @@ import 'package:foodgo/modules/favorites/favorites_binding.dart';
 import 'package:foodgo/modules/favorites/favorites_view.dart';
 import 'package:foodgo/modules/forget_password/forget_password_binding.dart';
 import 'package:foodgo/modules/forget_password/forget_password_view.dart';
+import 'package:foodgo/modules/home/visual_saerch_result_view.dart';
 import 'package:foodgo/modules/login/login_binding.dart';
 import 'package:foodgo/modules/login/login_view.dart';
 import 'package:foodgo/modules/about/about_view.dart';
@@ -102,6 +103,10 @@ GetPage(
   name: Routes.FAVORITES,
   page: () => const FavoritesView(),
   binding: FavoritesBinding(),
+),
+GetPage(
+  name: Routes.VISUAL_SEARCH_RESULT,
+  page: () => const VisualSearchResultView(),
 ),
   ];
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../services/cart_service.dart';
+import '../../core/sevice/cart_service.dart';
 
 class PaymentController extends GetxController {
   final CartService cartService = Get.find<CartService>();

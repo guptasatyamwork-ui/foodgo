@@ -7,7 +7,7 @@ class FoodService {
       FoodModel(
         id: '1',
         name: 'Classic Burger',
-        description: 'Juicy beef patty with fresh lettuce, tomato, and our secret sauce on a toasted brioche bun. A timeless classic that never disappoints.',
+        description: 'Juicy beef patty with fresh lettuce, tomato, and our secret sauce on a toasted brioche bun.',
         price: 12.99,
         rating: 4.8,
         reviewCount: 234,
@@ -21,7 +21,7 @@ class FoodService {
       FoodModel(
         id: '2',
         name: 'Margherita Pizza',
-        description: 'Classic Italian pizza with San Marzano tomatoes, fresh mozzarella, and fragrant basil leaves on a crispy thin crust.',
+        description: 'Classic Italian pizza with San Marzano tomatoes, fresh mozzarella, and fragrant basil leaves.',
         price: 14.99,
         rating: 4.7,
         reviewCount: 189,
@@ -35,7 +35,7 @@ class FoodService {
       FoodModel(
         id: '3',
         name: 'Chicken Combo Meal',
-        description: 'Crispy fried chicken with golden fries, coleslaw, and your choice of dipping sauce. The perfect combo for chicken lovers.',
+        description: 'Crispy fried chicken with golden fries, coleslaw, and your choice of dipping sauce.',
         price: 16.99,
         rating: 4.6,
         reviewCount: 312,
@@ -49,12 +49,13 @@ class FoodService {
       FoodModel(
         id: '4',
         name: 'Fresh Lemonade',
-        description: 'Freshly squeezed lemonade with a hint of mint and ginger. Perfectly refreshing on a hot day.',
+        description: 'Freshly squeezed lemonade with a hint of mint and ginger. Perfectly refreshing.',
         price: 4.99,
         rating: 4.5,
         reviewCount: 156,
         imageUrl: 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=800&q=80',
         category: 'Drinks',
+        isPopular: false,
         isVeg: true,
         calories: 120,
         prepTime: '5 min',
@@ -62,7 +63,7 @@ class FoodService {
       FoodModel(
         id: '5',
         name: 'Pepperoni Pizza',
-        description: 'Loaded with premium pepperoni slices, melted mozzarella, and zesty tomato sauce on a perfectly baked crust.',
+        description: 'Loaded with premium pepperoni slices, melted mozzarella, and zesty tomato sauce.',
         price: 16.99,
         rating: 4.9,
         reviewCount: 421,
@@ -96,6 +97,7 @@ class FoodService {
         reviewCount: 198,
         imageUrl: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=800&q=80',
         category: 'Drinks',
+        isPopular: true,
         isVeg: true,
         calories: 180,
         prepTime: '5 min',
@@ -123,6 +125,7 @@ class FoodService {
         reviewCount: 203,
         imageUrl: 'https://images.unsplash.com/photo-1586816001966-79b736744398?w=800&q=80',
         category: 'Burgers',
+        isPopular: false,
         isVeg: false,
         calories: 610,
         prepTime: '18 min',
@@ -136,6 +139,7 @@ class FoodService {
         reviewCount: 167,
         imageUrl: 'https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?w=800&q=80',
         category: 'Pizza',
+        isPopular: false,
         isVeg: true,
         calories: 620,
         prepTime: '22 min',
@@ -149,6 +153,7 @@ class FoodService {
         reviewCount: 289,
         imageUrl: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=800&q=80',
         category: 'Drinks',
+        isPopular: false,
         isVeg: true,
         calories: 80,
         prepTime: '3 min',
@@ -162,6 +167,7 @@ class FoodService {
         reviewCount: 89,
         imageUrl: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80',
         category: 'Combos',
+        isPopular: false,
         isVeg: false,
         calories: 5000,
         prepTime: '40 min',
@@ -175,9 +181,11 @@ class FoodService {
   }
 
   static List<FoodModel> searchFoods(String query) {
+    final q = query.toLowerCase();
     return getAllFoods()
-        .where((f) => f.name.toLowerCase().contains(query.toLowerCase()) ||
-            f.category.toLowerCase().contains(query.toLowerCase()))
+        .where((f) =>
+            f.name.toLowerCase().contains(q) ||
+            f.category.toLowerCase().contains(q))
         .toList();
   }
 

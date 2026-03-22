@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import '../../services/cart_service.dart';
-import '../../services/order_service.dart';
+import '../../core/sevice/cart_service.dart';
+import '../../core/sevice/order_service.dart';
 import '../../routes/app_pages.dart';
 
 class CartController extends GetxController {

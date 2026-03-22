@@ -4,15 +4,15 @@ class FoodModel {
   final String description;
   final double price;
   final double rating;
-  final int reviewCount;
+  final int    reviewCount;
   final String imageUrl;
   final String category;
-  final bool isPopular;
-  final bool isVeg;
-  final int calories;
+  final bool   isPopular;
+  final bool   isVeg;
+  final int    calories;
   final String prepTime;
 
-  FoodModel({
+  const FoodModel({
     required this.id,
     required this.name,
     required this.description,
@@ -21,39 +21,27 @@ class FoodModel {
     required this.reviewCount,
     required this.imageUrl,
     required this.category,
-    this.isPopular = false,
-    this.isVeg = false,
-    this.calories = 0,
-    this.prepTime = '20 min',
-  });
-}
-
-class CartItem {
-  final FoodModel food;
-  int quantity;
-  int spicyLevel;
-
-  CartItem({
-    required this.food,
-    this.quantity = 1,
-    this.spicyLevel = 1,
+    required this.isPopular,
+    required this.isVeg,
+    required this.calories,
+    required this.prepTime,
   });
 
-  double get totalPrice => food.price * quantity;
-}
-
-class OrderHistoryModel {
-  final String orderId;
-  final String date;
-  final List<CartItem> items;
-  final double totalAmount;
-  final String status;
-
-  OrderHistoryModel({
-    required this.orderId,
-    required this.date,
-    required this.items,
-    required this.totalAmount,
-    required this.status,
-  });
+  // ✅ API response (server.js) se FoodModel banao
+  factory FoodModel.fromJson(Map<String, dynamic> json) {
+    return FoodModel(
+      id:          json['id']?.toString()          ?? '',
+      name:        json['name']?.toString()        ?? '',
+      description: json['description']?.toString() ?? '',
+      price:       (json['price']  as num?)?.toDouble() ?? 0.0,
+      rating:      (json['rating'] as num?)?.toDouble() ?? 0.0,
+      reviewCount: (json['reviewCount'] as num?)?.toInt() ?? 0,
+      imageUrl:    json['imageUrl']?.toString()    ?? '',
+      category:    json['category']?.toString()    ?? '',
+      isPopular:   json['isPopular']  as bool?     ?? false,
+      isVeg:       json['isVeg']      as bool?     ?? false,
+      calories:    (json['calories'] as num?)?.toInt() ?? 0,
+      prepTime:    json['prepTime']?.toString()    ?? '',
+    );
+  }
 }

@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:foodgo/modules/food_model.dart';
 import '../core/theme/app_theme.dart';
 import '../routes/app_pages.dart';
-import '../services/cart_service.dart';
+import '../core/sevice/cart_service.dart';
 import '../modules/home/home_controller.dart';
 import 'package:get/get.dart';
 
