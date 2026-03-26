@@ -7,7 +7,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:foodgo/core/sevice/api_sevice.dart';
 import 'package:foodgo/core/sevice/cart_service.dart';
+<<<<<<< HEAD
 import 'package:foodgo/core/sevice/claude_vision_service.dart';
+=======
+>>>>>>> a8d73e13878be1993fa9c727868a03adaa5afa34
 import 'package:foodgo/modules/food_model.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
