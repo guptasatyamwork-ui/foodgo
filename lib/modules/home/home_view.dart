@@ -1,3 +1,5 @@
+// lib/modules/home/home_view.dart
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -24,20 +26,17 @@ class HomeView extends GetView<HomeController> {
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(child: _buildHeader(cartService)),
-
-            // ✅ Search bar with camera button
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
                 child: _buildSearchBarWithCamera(),
               ),
             ),
-
-            // ✅ Captured image preview — scan ke baad dikhta hai
             SliverToBoxAdapter(child: _buildCapturedImagePreview()),
-
             SliverToBoxAdapter(child: _buildBanner()),
             SliverToBoxAdapter(child: _buildCategories()),
+
+            // Popular Now header
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
@@ -62,6 +61,8 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
             SliverToBoxAdapter(child: _buildPopularList()),
+
+            // All items header
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
@@ -77,15 +78,33 @@ class HomeView extends GetView<HomeController> {
                     )),
               ),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              sliver: Obx(() {
-                if (controller.displayedFoods.isEmpty) {
-                  return const SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40),
-                      child: Center(
-                          child: Column(
+
+            // ── Food grid ─────────────────────────────────────────────────
+            Obx(() {
+              // Loading
+              if (controller.isLoading.value) {
+                return const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 60),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                );
+              }
+
+              // ❌ API off ya error — Data Not Found
+              if (controller.isApiError.value) {
+                return SliverToBoxAdapter(
+                  child: _buildDataNotFound(),
+                );
+              }
+
+              // Empty search result
+              if (controller.displayedFoods.isEmpty) {
+                return const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 40),
+                    child: Center(
+                      child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text('😕', style: TextStyle(fontSize: 40)),
@@ -96,11 +115,16 @@ class HomeView extends GetView<HomeController> {
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textSecondary)),
                         ],
-                      )),
+                      ),
                     ),
-                  );
-                }
-                return SliverGrid(
+                  ),
+                );
+              }
+
+              // ✅ Data hai — grid dikhao
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverGrid(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final food = controller.displayedFoods[index];
@@ -116,15 +140,17 @@ class HomeView extends GetView<HomeController> {
                     },
                     childCount: controller.displayedFoods.length,
                   ),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 0.65,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
                   ),
-                );
-              }),
-            ),
+                ),
+              );
+            }),
+
             const SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],
         ),
@@ -133,14 +159,70 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  //  📷  Search Bar with Camera Button
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════════════════════════════════
+  //  ❌  Data Not Found — API off hone par
+  // ══════════════════════════════════════════════════════════════════════════
+  Widget _buildDataNotFound() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 90, height: 90,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.wifi_off_rounded,
+                size: 44, color: Colors.grey),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Data Not Found',
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Server se connect nahi ho saka.\nInternet check karo ya baad mein try karo.',
+            style: TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+                height: 1.6),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 28),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: controller.loadFoods,
+              icon:  const Icon(Icons.refresh_rounded,
+                  color: Colors.white, size: 18),
+              label: const Text('Retry'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                textStyle: const TextStyle(
+                    fontWeight: FontWeight.w700, fontSize: 15),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
+  // ── Search bar with camera ─────────────────────────────────────────────────
   Widget _buildSearchBarWithCamera() {
     return Obx(() {
       final isScanning = controller.isScanningCamera.value;
-
       return Container(
         height: 52,
         decoration: BoxDecoration(
@@ -153,94 +235,74 @@ class HomeView extends GetView<HomeController> {
                 offset: const Offset(0, 4)),
           ],
         ),
-        child: Row(
-          children: [
-            // Search icon
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 14),
-              child: Icon(Icons.search_rounded,
-                  color: AppColors.textLight, size: 22),
-            ),
-
-            // Text field
-            Expanded(
-              child: TextField(
-                controller: controller.searchController,
-                style: const TextStyle(
+        child: Row(children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 14),
+            child: Icon(Icons.search_rounded,
+                color: AppColors.textLight, size: 22),
+          ),
+          Expanded(
+            child: TextField(
+              controller: controller.searchController,
+              style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w500),
+              decoration: const InputDecoration(
+                hintText: 'Search food...',
+                hintStyle: TextStyle(
+                    color: AppColors.textLight,
                     fontSize: 14,
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w500),
-                decoration: const InputDecoration(
-                  hintText: 'Search food...',
-                  hintStyle: TextStyle(
-                      color: AppColors.textLight,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
+                    fontWeight: FontWeight.w400),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
               ),
             ),
-
-            // Divider
-            Container(
-              width: 1,
-              height: 26,
-              color: AppColors.textLight.withOpacity(0.25),
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-            ),
-
-            // ✅ Camera Button — loading ya icon
-            GestureDetector(
-              onTap: isScanning ? null : controller.onCameraButtonTapped,
-              child: Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: isScanning
-                      ? AppColors.primary.withOpacity(0.7)
-                      : AppColors.primary,
-                  borderRadius: const BorderRadius.horizontal(
-                      right: Radius.circular(16)),
-                ),
-                child: isScanning
-                    ? const Center(
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2.5),
-                        ),
-                      )
-                    : const Icon(Icons.camera_alt_rounded,
-                        color: Colors.white, size: 22),
+          ),
+          Container(
+            width: 1, height: 26,
+            color: AppColors.textLight.withOpacity(0.25),
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+          ),
+          GestureDetector(
+            onTap: isScanning ? null : controller.onCameraButtonTapped,
+            child: Container(
+              width: 52, height: 52,
+              decoration: BoxDecoration(
+                color: isScanning
+                    ? AppColors.primary.withOpacity(0.7)
+                    : AppColors.primary,
+                borderRadius: const BorderRadius.horizontal(
+                    right: Radius.circular(16)),
               ),
+              child: isScanning
+                  ? const Center(
+                      child: SizedBox(
+                        width: 20, height: 20,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2.5),
+                      ),
+                    )
+                  : const Icon(Icons.camera_alt_rounded,
+                      color: Colors.white, size: 22),
             ),
-          ],
-        ),
+          ),
+        ]),
       );
     });
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  //  📸  Captured image preview — scan ke baad dikhta hai
-  // ═══════════════════════════════════════════════════════════════════════════
-
+  // ── Captured image preview ─────────────────────────────────────────────────
   Widget _buildCapturedImagePreview() {
     return Obx(() {
       final image = controller.capturedImage.value;
       final label = controller.detectedLabel.value;
-
       if (image == null) return const SizedBox.shrink();
 
-      // Category emoji map
       const Map<String, String> emojiMap = {
-        'Pizza': '🍕',
-        'Burgers': '🍔',
-        'Drinks': '🥤',
-        'Combos': '🎁',
-        'All': '🍽️',
+        'Pizza': '🍕', 'Burgers': '🍔',
+        'Drinks': '🥤', 'Combos': '🎁',
       };
       final String emoji = emojiMap[label] ?? '🔍';
 
@@ -255,61 +317,51 @@ class HomeView extends GetView<HomeController> {
             BoxShadow(color: AppColors.cardShadow, blurRadius: 10),
           ],
         ),
-        child: Row(
-          children: [
-            // Thumbnail
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.file(image,
-                  width: 60, height: 60, fit: BoxFit.cover),
+        child: Row(children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.file(image,
+                width: 60, height: 60, fit: BoxFit.cover),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('📷 Visual Search',
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary)),
+                const SizedBox(height: 4),
+                Text(
+                  label.isNotEmpty
+                      ? '$emoji  $label results'
+                      : 'Analyzing...',
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-
-            // Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('📷 Visual Search',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary)),
-                  const SizedBox(height: 4),
-                  Text(
-                    label.isNotEmpty
-                        ? '$emoji  $label results dikh rahe hain'
-                        : 'Analyzing...',
-                    style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary),
-                  ),
-                ],
-              ),
+          ),
+          GestureDetector(
+            onTap: controller.clearCameraSearch,
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                  color: Colors.grey.shade100, shape: BoxShape.circle),
+              child: const Icon(Icons.close_rounded,
+                  size: 16, color: AppColors.textSecondary),
             ),
-
-            // Clear
-            GestureDetector(
-              onTap: controller.clearCameraSearch,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                    color: Colors.grey.shade100, shape: BoxShape.circle),
-                child: const Icon(Icons.close_rounded,
-                    size: 16, color: AppColors.textSecondary),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ]),
       );
     });
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  //  Baaki widgets — original se same
-  // ═══════════════════════════════════════════════════════════════════════════
-
+  // ── Header ─────────────────────────────────────────────────────────────────
   Widget _buildHeader(CartService cartService) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
@@ -318,7 +370,8 @@ class HomeView extends GetView<HomeController> {
         children: [
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              const Icon(Icons.location_on, color: AppColors.primary, size: 18),
+              const Icon(Icons.location_on,
+                  color: AppColors.primary, size: 18),
               const SizedBox(width: 4),
               const Text('Deliver to',
                   style: TextStyle(
@@ -349,7 +402,8 @@ class HomeView extends GetView<HomeController> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                                color: AppColors.cardShadow, blurRadius: 10)
+                                color: AppColors.cardShadow,
+                                blurRadius: 10)
                           ]),
                       child: const Icon(Icons.shopping_bag_outlined,
                           color: AppColors.textPrimary, size: 22),
@@ -360,8 +414,7 @@ class HomeView extends GetView<HomeController> {
             GestureDetector(
               onTap: () => Get.toNamed(Routes.PROFILE),
               child: Container(
-                  width: 44,
-                  height: 44,
+                  width: 44, height: 44,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       image: const DecorationImage(
@@ -375,6 +428,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  // ── Banner ─────────────────────────────────────────────────────────────────
   Widget _buildBanner() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -388,9 +442,7 @@ class HomeView extends GetView<HomeController> {
       clipBehavior: Clip.antiAlias,
       child: Stack(children: [
         Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
+            right: 0, top: 0, bottom: 0,
             child: CachedNetworkImage(
                 imageUrl:
                     'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80',
@@ -441,6 +493,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  // ── Categories ─────────────────────────────────────────────────────────────
   Widget _buildCategories() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const Padding(
@@ -470,79 +523,89 @@ class HomeView extends GetView<HomeController> {
     ]);
   }
 
+  // ── Popular list ───────────────────────────────────────────────────────────
   Widget _buildPopularList() {
-    return SizedBox(
-      height: 220,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: controller.popularFoods.length,
-        itemBuilder: (context, index) {
-          final food = controller.popularFoods[index];
-          return GestureDetector(
-            onTap: () => Get.toNamed(Routes.PRODUCT_DETAIL,
-                arguments: {'food': food, 'qty': 1}),
-            child: Container(
-              width: 180,
-              margin: const EdgeInsets.only(right: 16),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                        color: AppColors.cardShadow,
-                        blurRadius: 15,
-                        offset: const Offset(0, 5))
-                  ]),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(20)),
-                        child: CachedNetworkImage(
-                            imageUrl: food.imageUrl,
-                            height: 130,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            placeholder: (ctx, url) => Container(
-                                height: 130, color: Colors.grey[100]))),
-                    Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(food.name,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 13),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis),
-                              const SizedBox(height: 4),
-                              Row(children: [
-                                const Icon(Icons.star_rounded,
-                                    color: AppColors.star, size: 14),
-                                const SizedBox(width: 2),
-                                Text(food.rating.toString(),
+    return Obx(() {
+      if (controller.isApiError.value || controller.popularFoods.isEmpty) {
+        return const SizedBox(height: 8);
+      }
+      return SizedBox(
+        height: 220,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          itemCount: controller.popularFoods.length,
+          itemBuilder: (context, index) {
+            final food = controller.popularFoods[index];
+            return GestureDetector(
+              onTap: () => Get.toNamed(Routes.PRODUCT_DETAIL,
+                  arguments: {'food': food, 'qty': 1}),
+              child: Container(
+                width: 180,
+                margin: const EdgeInsets.only(right: 16),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                          color: AppColors.cardShadow,
+                          blurRadius: 15,
+                          offset: const Offset(0, 5))
+                    ]),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(20)),
+                          child: CachedNetworkImage(
+                              imageUrl: food.imageUrl,
+                              height: 130,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              placeholder: (ctx, url) => Container(
+                                  height: 130,
+                                  color: Colors.grey[100]))),
+                      Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+                                Text(food.name,
                                     style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600)),
-                                const Spacer(),
-                                Text('\$${food.price.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w800,
-                                        color: AppColors.primary)),
-                              ]),
-                            ])),
-                  ]),
-            ),
-          );
-        },
-      ),
-    );
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis),
+                                const SizedBox(height: 4),
+                                Row(children: [
+                                  const Icon(Icons.star_rounded,
+                                      color: AppColors.star, size: 14),
+                                  const SizedBox(width: 2),
+                                  Text(food.rating.toString(),
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600)),
+                                  const Spacer(),
+                                  Text(
+                                      '\$${food.price.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.primary)),
+                                ]),
+                              ])),
+                    ]),
+              ),
+            );
+          },
+        ),
+      );
+    });
   }
 
+  // ── Bottom nav ─────────────────────────────────────────────────────────────
   Widget _buildBottomNav() {
     return Obx(() => Container(
           decoration: BoxDecoration(
@@ -595,8 +658,8 @@ class HomeView extends GetView<HomeController> {
                         favCtrl.favoriteFoods.length.toString(),
                         style: const TextStyle(
                             color: Colors.white, fontSize: 8)),
-                    badgeStyle:
-                        const badges.BadgeStyle(badgeColor: Colors.red),
+                    badgeStyle: const badges.BadgeStyle(
+                        badgeColor: Colors.red),
                     child: const Icon(Icons.favorite_border_rounded),
                   );
                 }),
