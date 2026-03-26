@@ -1,19 +1,15 @@
+// lib/modules/favorites/favorites_controller.dart
+
 import 'package:flutter/material.dart';
 import 'package:foodgo/core/sevice/api_sevice.dart';
-import 'package:foodgo/core/sevice/food_service.dart';
 import 'package:foodgo/modules/food_model.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_navigation/src/snackbar/snackbar.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_rx/src/rx_workers/rx_workers.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-
+import 'package:get/get.dart';
 
 class FavoritesController extends GetxController {
   final RxSet<String>     favoriteFoodIds = <String>{}.obs;
   final RxList<FoodModel> favoriteFoods   = <FoodModel>[].obs;
 
+  // ✅ API se load hogi list — koi static fallback nahi
   List<FoodModel> _allFoods = [];
 
   @override
@@ -26,8 +22,11 @@ class FavoritesController extends GetxController {
   Future<void> _loadAllFoods() async {
     try {
       _allFoods = await ApiService.getAllFoods();
-    } catch (_) {
-      _allFoods = FoodService.getAllFoods();
+      debugPrint('✅ [Favorites] Foods loaded: ${_allFoods.length}');
+    } catch (e) {
+      // API off — empty, koi static data nahi
+      _allFoods = [];
+      debugPrint('❌ [Favorites] API error: $e');
     }
     _updateFavoriteList();
   }
