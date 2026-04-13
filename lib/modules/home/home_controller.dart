@@ -7,16 +7,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:foodgo/core/sevice/api_sevice.dart';
 import 'package:foodgo/core/sevice/cart_service.dart';
-<<<<<<< HEAD
 import 'package:foodgo/core/sevice/claude_vision_service.dart';
-=======
->>>>>>> a8d73e13878be1993fa9c727868a03adaa5afa34
+import 'package:foodgo/modules/favorites/favorites_controller.dart';
 import 'package:foodgo/modules/food_model.dart';
-import 'package:get/get.dart';
+import 'package:foodgo/routes/app_pages.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../../routes/app_pages.dart';
-import '../favorites/favorites_controller.dart';
 
 class HomeController extends GetxController {
   final CartService cartService            = Get.find<CartService>();

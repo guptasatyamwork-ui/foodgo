@@ -1,3 +1,5 @@
+// lib/modules/home/visual_search_result_view.dart
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -11,20 +13,20 @@ import '../../modules/food_model.dart';
 /// Visual Search Result Screen
 ///
 /// Arguments (Get.arguments):
-///   'detectedLabel'      — String
+///   'category'           — String?      (detected category, can be null)
 ///   'capturedImagePath'  — String
-///   'detectedProduct'    — FoodModel   (best match)
-///   'relatedProducts'    — List<FoodModel>  (smart scored — same category,
-///                                            sorted by rating + price proximity)
+///   'detectedProduct'    — FoodModel?   (best match, can be null)
+///   'relatedProducts'    — List<FoodModel>
 class VisualSearchResultView extends StatelessWidget {
   const VisualSearchResultView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final args            = Get.arguments as Map<String, dynamic>;
-    final String label    = args['detectedLabel']     ?? '';
-    final String imgPath  = args['capturedImagePath'] ?? '';
-    final FoodModel main  = args['detectedProduct']   as FoodModel;
+    final args = Get.arguments as Map<String, dynamic>;
+
+    final String label        = (args['category'] as String?) ?? '';
+    final String imgPath      = (args['capturedImagePath'] as String?) ?? '';
+    final FoodModel? main     = args['detectedProduct'] as FoodModel?; // ✅ nullable
     final List<FoodModel> related =
         List<FoodModel>.from(args['relatedProducts'] ?? []);
 
@@ -43,7 +45,7 @@ class VisualSearchResultView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // ── Captured photo ──────────────────────────────────────────
+            // ── Captured photo ────────────────────────────────────────────
             if (imgPath.isNotEmpty) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
@@ -60,87 +62,176 @@ class VisualSearchResultView extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: label.isNotEmpty
+                        ? AppColors.primary.withOpacity(0.1)
+                        : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    const Icon(Icons.auto_awesome_rounded,
-                        size: 13, color: AppColors.primary),
+                    Icon(
+                      label.isNotEmpty
+                          ? Icons.auto_awesome_rounded
+                          : Icons.help_outline_rounded,
+                      size: 13,
+                      color: label.isNotEmpty
+                          ? AppColors.primary
+                          : Colors.grey,
+                    ),
                     const SizedBox(width: 6),
-                    Text('$emoji  $label detected',
-                        style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primary)),
+                    Text(
+                      label.isNotEmpty
+                          ? '$emoji  $label detected'
+                          : 'Food not recognized',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: label.isNotEmpty
+                              ? AppColors.primary
+                              : Colors.grey),
+                    ),
                   ]),
                 ),
               ]),
               const SizedBox(height: 22),
             ],
 
-            // ── Best Match ──────────────────────────────────────────────
-            const _SectionLabel(text: '✅ Best Match'),
-            const SizedBox(height: 12),
-            _MainCard(food: main),
-            const SizedBox(height: 28),
-
-            // ── Related — same category, smart order ────────────────────
-            if (related.isNotEmpty) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _SectionLabel(
-                      text: '$emoji  Related ${main.category}'),
-                  Text('${related.length} items',
-                      style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary)),
-                ],
-              ),
-              const SizedBox(height: 4),
-              // Subtitle — explains why these are related
-              Text(
-                'Same category • Sorted by rating & price',
-                style: TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textSecondary.withOpacity(0.7)),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 218,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: related.length,
-                  itemBuilder: (_, i) => _RelatedCard(food: related[i]),
-                ),
-              ),
+            // ── API key not set / food not recognized ─────────────────────
+            if (main == null) ...[
+              _buildNotRecognized(label),
             ] else ...[
-              // No related products — iska matlab category mein sirf ek item tha
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.grey.shade200),
+
+              // ── Best Match ───────────────────────────────────────────────
+              const _SectionLabel(text: '✅ Best Match'),
+              const SizedBox(height: 12),
+              _MainCard(food: main),
+              const SizedBox(height: 28),
+
+              // ── Related — same category, smart order ─────────────────────
+              if (related.isNotEmpty) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _SectionLabel(text: '$emoji  Related ${main.category}'),
+                    Text('${related.length} items',
+                        style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary)),
+                  ],
                 ),
-                child: Row(children: [
-                  const Icon(Icons.info_outline_rounded,
-                      color: Colors.grey, size: 20),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Is category mein abhi sirf yahi item available hai.',
-                      style: TextStyle(
-                          fontSize: 13, color: Colors.grey.shade600),
-                    ),
+                const SizedBox(height: 4),
+                Text(
+                  'Same category • Sorted by rating & price',
+                  style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textSecondary.withOpacity(0.7)),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 218,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: related.length,
+                    itemBuilder: (_, i) => _RelatedCard(food: related[i]),
                   ),
-                ]),
-              ),
+                ),
+              ] else ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Row(children: [
+                    const Icon(Icons.info_outline_rounded,
+                        color: Colors.grey, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Is category mein abhi sirf yahi item available hai.',
+                        style: TextStyle(
+                            fontSize: 13, color: Colors.grey.shade600),
+                      ),
+                    ),
+                  ]),
+                ),
+              ],
             ],
 
             const SizedBox(height: 40),
           ],
         ),
+      ),
+    );
+  }
+
+  // ── Not recognized / API key missing widget ────────────────────────────────
+  Widget _buildNotRecognized(String label) {
+    final bool isApiIssue = label.isEmpty;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 72, height: 72,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isApiIssue
+                  ? Icons.key_off_rounded
+                  : Icons.search_off_rounded,
+              size: 36,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            isApiIssue ? 'Vision API Not Configured' : 'No Match Found',
+            style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isApiIssue
+                ? 'api_constants.dart mein Claude API key set karo,\nphir dobara try karo.'
+                : 'Is image mein koi recognizable food nahi mila.\nDobara try karo.',
+            style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+                height: 1.6),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => Get.back(),
+              icon: const Icon(Icons.camera_alt_rounded,
+                  color: Colors.white, size: 18),
+              label: const Text('Try Again'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                textStyle: const TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w700),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -170,9 +261,11 @@ class VisualSearchResultView extends StatelessWidget {
                   color: AppColors.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w700)),
-          Text(label,
-              style: const TextStyle(
-                  color: AppColors.textSecondary, fontSize: 12)),
+          Text(
+            label.isNotEmpty ? label : 'No result',
+            style: const TextStyle(
+                color: AppColors.textSecondary, fontSize: 12),
+          ),
         ]),
       ]),
       actions: [
@@ -180,8 +273,8 @@ class VisualSearchResultView extends StatelessWidget {
           onTap: () => Get.back(),
           child: Container(
             margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(
-                horizontal: 12, vertical: 6),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: AppColors.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
@@ -203,7 +296,7 @@ class VisualSearchResultView extends StatelessWidget {
   }
 }
 
-// ─── Section label ────────────────────────────────────────────────────────────
+// ─── Section label ─────────────────────────────────────────────────────────────
 class _SectionLabel extends StatelessWidget {
   final String text;
   const _SectionLabel({required this.text});
@@ -218,7 +311,7 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-// ─── Main product card ────────────────────────────────────────────────────────
+// ─── Main product card ──────────────────────────────────────────────────────────
 class _MainCard extends StatelessWidget {
   final FoodModel food;
   const _MainCard({required this.food});
@@ -234,7 +327,7 @@ class _MainCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-                color:  AppColors.cardShadow,
+                color: AppColors.cardShadow,
                 blurRadius: 16,
                 offset: const Offset(0, 6)),
           ],
@@ -242,7 +335,6 @@ class _MainCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image + badge
             Stack(children: [
               ClipRRect(
                 borderRadius:
@@ -296,8 +388,6 @@ class _MainCard extends StatelessWidget {
                   ),
                 ),
             ]),
-
-            // Info
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -370,7 +460,7 @@ class _MainCard extends StatelessWidget {
   }
 }
 
-// ─── Related product card ─────────────────────────────────────────────────────
+// ─── Related product card ───────────────────────────────────────────────────────
 class _RelatedCard extends StatelessWidget {
   final FoodModel food;
   const _RelatedCard({required this.food});
@@ -388,7 +478,7 @@ class _RelatedCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-                color:  AppColors.cardShadow,
+                color: AppColors.cardShadow,
                 blurRadius: 10,
                 offset: const Offset(0, 4)),
           ],
@@ -396,7 +486,6 @@ class _RelatedCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image
             Stack(children: [
               ClipRRect(
                 borderRadius:
@@ -424,8 +513,6 @@ class _RelatedCard extends StatelessWidget {
                   ),
                 ),
             ]),
-
-            // Info
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
               child: Column(
@@ -454,11 +541,9 @@ class _RelatedCard extends StatelessWidget {
                             color: AppColors.primary)),
                   ]),
                   const SizedBox(height: 8),
-                  // Quick add button
                   Container(
                     width: double.infinity,
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 6),
+                    padding: const EdgeInsets.symmetric(vertical: 6),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(8),

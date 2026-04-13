@@ -1,57 +1,88 @@
-// lib/core/sevice/api_sevice.dart
+// lib/core/service/api_service.dart
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:foodgo/modules/food_model.dart';
 import 'package:http/http.dart' as http;
 
+/// Custom exception for API errors — UI mein specific handling ke liye
+class ApiException implements Exception {
+  final String message;
+  final int? statusCode;
+  ApiException(this.message, {this.statusCode});
+
+  @override
+  String toString() => 'ApiException: $message (status: $statusCode)';
+}
+
 class ApiService {
   // ══════════════════════════════════════════════════════════════════════════
-<<<<<<< HEAD
   //  🌐  BASE URL CONFIG
   //
-  //  Real device use kar rahe ho?
-  //  Step 1: CMD mein → ipconfig → IPv4 Address copy karo
-  //  Step 2: Neeche _realDeviceIp mein paste karo
-  //  Step 3: Phone aur PC same WiFi pe hone chahiye
+  //  ⚡ REAL DEVICE (USB cable) use kar rahe ho — YEH KARO:
+  //     Step 1: CMD mein → ipconfig → IPv4 Address copy karo
+  //     Step 2: _realDeviceIp mein apna IP paste karo
+  //     Step 3: Phone aur PC same WiFi pe hone chahiye
   //
-  //  Emulator use kar rahe ho? Kuch mat badlo — auto detect hoga
+  //  💻 EMULATOR use kar rahe ho?
+  //     _useEmulator = true karo — baki kuch mat badlo
   // ══════════════════════════════════════════════════════════════════════════
-  static const String _realDeviceIp = '10.66.121.85'; // ✅ PC ka IP
+
+  static const bool   _useEmulator  = false;          // ✅ Real device = false
+  static const String _realDeviceIp = '10.147.73.85'; // ⚠️  APNA IP YAHAN DAALO (ipconfig se)
   static const int    _port         = 3000;
 
-  // Auto: emulator = 10.0.2.2, real device = upar wala IP
   static String get _baseUrl {
+    if (kIsWeb) return 'http://localhost:$_port';
     if (Platform.isAndroid) {
-      // Emulator detect — emulator ka IP 10.0.2.2 hota hai
-      // Real device pe _realDeviceIp use hoga
-      return kIsWeb
-          ? 'http://localhost:$_port'
+      return _useEmulator
+          ? 'http://10.0.2.2:$_port'
           : 'http://$_realDeviceIp:$_port';
     }
     return 'http://localhost:$_port';
   }
 
-  static final _client = http.Client();
-  static const _timeout = Duration(seconds: 10);
+  static const _timeout    = Duration(seconds: 10);
+  static const _maxRetries = 2;
 
-=======
-  //  🌐  BASE URL — apna IP yahan set karo
-  // ══════════════════════════════════════════════════════════════════════════
-  static const String _realDeviceIp = '10.66.121.85'; // ✅ PC ka IP
-  static const int    _port         = 3000;
-
-  static String get _baseUrl => 'http://$_realDeviceIp:$_port';
-
-  static const _timeout = Duration(seconds: 10);
-
-  // ✅ Har request pe FRESH client banao
-  // Static client reuse karne se server restart ke baad stale connection
-  // milti hai — isliye retry kaam nahi karta tha bina hot restart ke
   static http.Client _freshClient() => http.Client();
 
->>>>>>> a8d73e13878be1993fa9c727868a03adaa5afa34
+  // ─── Retryable error check ────────────────────────────────────────────────
+  static bool _isRetryable(Object e) =>
+      e is SocketException ||
+      e is TimeoutException ||
+      e is HttpException ||
+      e is OSError;
+
+  // ─── Retry wrapper ────────────────────────────────────────────────────────
+  static Future<http.Response> _getWithRetry(Uri uri) async {
+    int attempt = 0;
+    while (true) {
+      final client = _freshClient();
+      try {
+        debugPrint('📡 [API] GET $uri (attempt ${attempt + 1})');
+        final res = await client.get(uri).timeout(_timeout);
+        debugPrint('✅ [API] ${res.statusCode} ← $uri');
+        return res;
+      } catch (e) {
+        client.close();
+        if (_isRetryable(e) && attempt < _maxRetries) {
+          attempt++;
+          debugPrint('⚠️ [API] Retry $attempt/$_maxRetries → $e');
+          await Future.delayed(Duration(seconds: attempt));
+          continue;
+        }
+        throw ApiException(
+          'Request failed after ${attempt + 1} attempt(s): $e',
+        );
+      } finally {
+        client.close();
+      }
+    }
+  }
+
   // ─── Helper ───────────────────────────────────────────────────────────────
   static List<FoodModel> _parseList(String body) {
     final json = jsonDecode(body);
@@ -61,128 +92,42 @@ class ApiService {
 
   // ─── GET /foods ───────────────────────────────────────────────────────────
   static Future<List<FoodModel>> getAllFoods() async {
-    debugPrint('📡 [API] GET $_baseUrl/foods');
-<<<<<<< HEAD
-    final res = await _client
-        .get(Uri.parse('$_baseUrl/foods'))
-        .timeout(_timeout);
-    debugPrint('✅ [API] /foods → ${res.statusCode}');
+    final res = await _getWithRetry(Uri.parse('$_baseUrl/foods'));
     if (res.statusCode == 200) return _parseList(res.body);
-    throw Exception('getAllFoods failed: ${res.statusCode}');
-=======
-    final client = _freshClient();
-    try {
-      final res = await client
-          .get(Uri.parse('$_baseUrl/foods'))
-          .timeout(_timeout);
-      debugPrint('✅ [API] /foods → ${res.statusCode}');
-      if (res.statusCode == 200) return _parseList(res.body);
-      throw Exception('getAllFoods failed: ${res.statusCode}');
-    } finally {
-      client.close();
-    }
->>>>>>> a8d73e13878be1993fa9c727868a03adaa5afa34
+    throw ApiException('getAllFoods failed', statusCode: res.statusCode);
   }
 
   // ─── GET /foods/popular ───────────────────────────────────────────────────
   static Future<List<FoodModel>> getPopularFoods() async {
-    debugPrint('📡 [API] GET $_baseUrl/foods/popular');
-<<<<<<< HEAD
-    final res = await _client
-        .get(Uri.parse('$_baseUrl/foods/popular'))
-        .timeout(_timeout);
-    debugPrint('✅ [API] /foods/popular → ${res.statusCode}');
+    final res = await _getWithRetry(Uri.parse('$_baseUrl/foods/popular'));
     if (res.statusCode == 200) return _parseList(res.body);
-    throw Exception('getPopularFoods failed: ${res.statusCode}');
-=======
-    final client = _freshClient();
-    try {
-      final res = await client
-          .get(Uri.parse('$_baseUrl/foods/popular'))
-          .timeout(_timeout);
-      debugPrint('✅ [API] /foods/popular → ${res.statusCode}');
-      if (res.statusCode == 200) return _parseList(res.body);
-      throw Exception('getPopularFoods failed: ${res.statusCode}');
-    } finally {
-      client.close();
-    }
->>>>>>> a8d73e13878be1993fa9c727868a03adaa5afa34
+    throw ApiException('getPopularFoods failed', statusCode: res.statusCode);
   }
 
   // ─── GET /foods/category/:category ───────────────────────────────────────
   static Future<List<FoodModel>> getFoodsByCategory(String category) async {
-    debugPrint('📡 [API] GET $_baseUrl/foods/category/$category');
-<<<<<<< HEAD
-    final res = await _client
-        .get(Uri.parse('$_baseUrl/foods/category/$category'))
-        .timeout(_timeout);
-    debugPrint('✅ [API] /foods/category/$category → ${res.statusCode}');
+    final res = await _getWithRetry(
+        Uri.parse('$_baseUrl/foods/category/$category'));
     if (res.statusCode == 200) return _parseList(res.body);
-    throw Exception('getFoodsByCategory failed: ${res.statusCode}');
-=======
-    final client = _freshClient();
-    try {
-      final res = await client
-          .get(Uri.parse('$_baseUrl/foods/category/$category'))
-          .timeout(_timeout);
-      debugPrint('✅ [API] /foods/category/$category → ${res.statusCode}');
-      if (res.statusCode == 200) return _parseList(res.body);
-      throw Exception('getFoodsByCategory failed: ${res.statusCode}');
-    } finally {
-      client.close();
-    }
->>>>>>> a8d73e13878be1993fa9c727868a03adaa5afa34
+    throw ApiException('getFoodsByCategory failed', statusCode: res.statusCode);
   }
 
   // ─── GET /foods/search?q= ─────────────────────────────────────────────────
   static Future<List<FoodModel>> searchFoods(String query) async {
     final uri = Uri.parse('$_baseUrl/foods/search')
         .replace(queryParameters: {'q': query});
-    debugPrint('📡 [API] GET $uri');
-<<<<<<< HEAD
-    final res = await _client.get(uri).timeout(_timeout);
-    debugPrint('✅ [API] /foods/search → ${res.statusCode}');
+    final res = await _getWithRetry(uri);
     if (res.statusCode == 200) return _parseList(res.body);
-    throw Exception('searchFoods failed: ${res.statusCode}');
-=======
-    final client = _freshClient();
-    try {
-      final res = await client.get(uri).timeout(_timeout);
-      debugPrint('✅ [API] /foods/search → ${res.statusCode}');
-      if (res.statusCode == 200) return _parseList(res.body);
-      throw Exception('searchFoods failed: ${res.statusCode}');
-    } finally {
-      client.close();
-    }
->>>>>>> a8d73e13878be1993fa9c727868a03adaa5afa34
+    throw ApiException('searchFoods failed', statusCode: res.statusCode);
   }
 
   // ─── GET /foods/:id ───────────────────────────────────────────────────────
   static Future<FoodModel> getFoodById(String id) async {
-    debugPrint('📡 [API] GET $_baseUrl/foods/$id');
-<<<<<<< HEAD
-    final res = await _client
-        .get(Uri.parse('$_baseUrl/foods/$id'))
-        .timeout(_timeout);
-    debugPrint('✅ [API] /foods/$id → ${res.statusCode}');
+    final res = await _getWithRetry(Uri.parse('$_baseUrl/foods/$id'));
     if (res.statusCode == 200) {
       final json = jsonDecode(res.body);
       return FoodModel.fromJson(json['data']);
-=======
-    final client = _freshClient();
-    try {
-      final res = await client
-          .get(Uri.parse('$_baseUrl/foods/$id'))
-          .timeout(_timeout);
-      debugPrint('✅ [API] /foods/$id → ${res.statusCode}');
-      if (res.statusCode == 200) {
-        final json = jsonDecode(res.body);
-        return FoodModel.fromJson(json['data']);
-      }
-      throw Exception('getFoodById failed: ${res.statusCode}');
-    } finally {
-      client.close();
->>>>>>> a8d73e13878be1993fa9c727868a03adaa5afa34
     }
+    throw ApiException('getFoodById failed', statusCode: res.statusCode);
   }
 }
