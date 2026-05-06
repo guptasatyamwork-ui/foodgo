@@ -1,7 +1,3 @@
-// lib/modules/home/home_view.dart
-
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:badges/badges.dart' as badges;

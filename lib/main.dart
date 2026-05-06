@@ -13,9 +13,6 @@ import 'core/sevice/cart_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: ".env"); // ← YEH LINE ADD KARO
-
-  // Firebase initialize
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Services register

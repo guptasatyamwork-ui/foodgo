@@ -18,20 +18,9 @@ class ApiException implements Exception {
 }
 
 class ApiService {
-  // ══════════════════════════════════════════════════════════════════════════
-  //  🌐  BASE URL CONFIG
-  //
-  //  ⚡ REAL DEVICE (USB cable) use kar rahe ho — YEH KARO:
-  //     Step 1: CMD mein → ipconfig → IPv4 Address copy karo
-  //     Step 2: _realDeviceIp mein apna IP paste karo
-  //     Step 3: Phone aur PC same WiFi pe hone chahiye
-  //
-  //  💻 EMULATOR use kar rahe ho?
-  //     _useEmulator = true karo — baki kuch mat badlo
-  // ══════════════════════════════════════════════════════════════════════════
 
-  static const bool   _useEmulator  = false;          // ✅ Real device = false
-  static const String _realDeviceIp = '10.147.73.85'; // ⚠️  APNA IP YAHAN DAALO (ipconfig se)
+  static const bool   _useEmulator  = false;      
+  static const String _realDeviceIp = '10.61.149.85'; 
   static const int    _port         = 3000;
 
   static String get _baseUrl {
